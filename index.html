@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wild Lirt Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --grad-a:#31c48d; --grad-b:#1aa3a3;
+    --amber:#f5a524; --amber-soft:rgba(245,165,36,.12);
+    --cyan:#2fa8c4; --cyan-soft:rgba(47,168,196,.12);
+    --violet:#8b6cf0; --violet-soft:rgba(139,108,240,.12);
+    --pink:#e0668f; --pink-soft:rgba(224,102,143,.12);
+    --wa-green:#25D366;
+    --radius-lg:18px; --radius-md:12px; --radius-sm:8px;
+  }
+  html[data-theme="light"]{
+    --bg:#f6f9f5; --bg-elevated:#ffffff; --bg-card:#ffffff; --sidebar:#ffffff;
+    --accent:#1f9d5c; --accent-soft:rgba(31,157,92,.10); --accent-strong:#177a48;
+    --text:#152018; --text-dim:#5c6d60; --text-faint:#96a69a;
+    --border:rgba(21,32,24,.08); --border-strong:rgba(21,32,24,.16);
+    --shadow-sm:0 1px 2px rgba(20,30,22,.04); --shadow-md:0 12px 28px -10px rgba(20,40,25,.16);
+    --overlay:rgba(15,25,18,.45);
+  }
+  html[data-theme="dark"]{
+    --bg:#0a100c; --bg-elevated:#121b14; --bg-card:#141f17; --sidebar:#0a0f0b;
+    --accent:#5fe39a; --accent-soft:rgba(95,227,154,.14); --accent-strong:#7cf0ac;
+    --text:#eef5ee; --text-dim:#95a89a; --text-faint:#5c6e60;
+    --border:rgba(238,245,238,.08); --border-strong:rgba(238,245,238,.16);
+    --shadow-sm:0 1px 2px rgba(0,0,0,.3); --shadow-md:0 16px 32px -12px rgba(0,0,0,.55);
+    --overlay:rgba(3,6,4,.65);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{ background:var(--bg); color:var(--text); font-family:'Inter',sans-serif; display:grid;
+    grid-template-columns:264px 1fr; min-height:100vh; transition:background .25s ease, color .25s ease; }
+  ::selection{background:var(--accent-soft); color:var(--accent-strong);}
+  a{color:inherit;}
+
+  aside{ background:var(--sidebar); border-right:1px solid var(--border); padding:24px 16px;
+    display:flex; flex-direction:column; gap:18px; position:sticky; top:0; height:100vh;
+    overflow-y:auto; transition:background .25s, border-color .25s; }
+  .brand-row{display:flex; align-items:center; justify-content:space-between;}
+  .brand{display:flex; align-items:center; gap:10px;}
+  .brand-icon{ width:32px; height:32px; border-radius:9px; background:linear-gradient(135deg,var(--grad-a),var(--grad-b));
+    display:flex; align-items:center; justify-content:center; font-size:15px; color:#fff; flex-shrink:0; box-shadow:var(--shadow-sm);}
+  .brand-text{display:flex; flex-direction:column; line-height:1.15;}
+  .brand-mark{font-family:'Fraunces',serif; font-weight:600; font-size:15.5px;}
+  .brand-sub{font-family:'IBM Plex Mono',monospace; font-size:9px; letter-spacing:.1em; text-transform:uppercase; color:var(--text-faint);}
+  .theme-toggle{ width:42px; height:23px; border-radius:20px; background:var(--bg-elevated);
+    border:1px solid var(--border-strong); position:relative; cursor:pointer; flex-shrink:0;}
+  .theme-toggle .knob{ position:absolute; top:2px; left:2px; width:17px; height:17px; border-radius:50%;
+    background:linear-gradient(135deg,var(--grad-a),var(--grad-b)); display:flex; align-items:center; justify-content:center;
+    font-size:9px; transition:left .22s cubic-bezier(.4,0,.2,1); color:#fff;}
+  html[data-theme="dark"] .theme-toggle .knob{left:21px;}
+  .stat-strip{ font-family:'IBM Plex Mono',monospace; font-size:10px; color:var(--accent-strong);
+    background:var(--accent-soft); padding:7px 10px; border-radius:var(--radius-sm); display:flex; align-items:center; gap:6px;}
+  .stat-strip::before{content:'●'; font-size:7px;}
+  .wa-follow{ display:flex; align-items:center; gap:8px; padding:9px 10px; border-radius:var(--radius-sm);
+    background:rgba(37,211,102,.10); color:var(--wa-green); font-size:12px; font-weight:600; text-decoration:none;
+    border:1px solid rgba(37,211,102,.25);}
+  .wa-follow svg{width:15px; height:15px; flex-shrink:0;}
+  nav.primary-nav{display:flex; flex-direction:column; gap:2px;}
+  .nav-btn{ display:flex; align-items:center; gap:10px; background:none; border:none; cursor:pointer;
+    color:var(--text-dim); font-family:'Inter',sans-serif; font-size:13.5px; font-weight:500;
+    padding:9px 11px; border-radius:var(--radius-sm); text-align:left; position:relative; width:100%;
+    transition:background .15s, color .15s;}
+  .nav-btn:hover{background:var(--bg-elevated); color:var(--text);}
+  .nav-btn.active{background:var(--accent-soft); color:var(--accent-strong); font-weight:600;}
+  .nav-btn.active::before{ content:''; position:absolute; left:-16px; top:50%; transform:translateY(-50%);
+    width:3px; height:16px; background:var(--accent); border-radius:3px;}
+  .nav-icon{width:16px; text-align:center; font-size:14px;}
+  .nav-badge{margin-left:auto; font-size:9.5px; font-family:'IBM Plex Mono',monospace; background:var(--violet-soft);
+    color:var(--violet); padding:2px 6px; border-radius:20px;}
+  .sidebar-section-label{font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:.1em; text-transform:uppercase;
+    color:var(--text-faint); margin-bottom:8px;}
+  .mybots-list{display:flex; flex-direction:column; gap:6px;}
+  .mybot-row{display:flex; align-items:center; justify-content:space-between; padding:8px 10px; border-radius:var(--radius-sm);
+    background:var(--bg-elevated); border:1px solid var(--border); font-size:12px;}
+  .status-dot{width:6px; height:6px; border-radius:50%; flex-shrink:0;}
+  .status-dot.online{background:var(--accent); box-shadow:0 0 6px var(--accent);}
+  .mybot-name{display:flex; align-items:center; gap:7px; color:var(--text-dim); font-weight:500;}
+  .mybot-empty{font-size:11.5px; color:var(--text-faint); font-style:italic; padding:5px 2px;}
+  .sidebar-bottom{margin-top:auto; display:flex; flex-direction:column; gap:2px; border-top:1px solid var(--border); padding-top:12px;}
+  .sidebar-bottom .nav-btn{color:var(--text-faint); font-size:12.5px;}
+
+  main{padding:40px 50px 0; max-width:1180px; display:flex; flex-direction:column; min-height:100vh;}
+  .page-wrap{flex-grow:1; padding-bottom:60px;}
+  .page{display:none; animation:fadein .35s ease;}
+  .page.active{display:block;}
+  @keyframes fadein{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);}}
+  .eyebrow{font-family:'IBM Plex Mono',monospace; font-size:10.5px; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--accent-strong); margin-bottom:12px; display:flex; align-items:center; gap:8px;}
+  .eyebrow::before{content:''; width:14px; height:1px; background:var(--accent);}
+  h1.page-title{font-family:'Fraunces',serif; font-weight:600; font-size:38px; line-height:1.1; letter-spacing:-.018em; max-width:680px;}
+  h1.page-title .grad{background:linear-gradient(100deg,var(--grad-a),var(--cyan)); -webkit-background-clip:text;
+    background-clip:text; color:transparent; font-style:italic; font-weight:500;}
+  .page-desc{color:var(--text-dim); font-size:14.5px; max-width:560px; margin-top:14px; line-height:1.6;}
+
+  .hero{ position:relative; display:grid; grid-template-columns:1fr .85fr; gap:36px; align-items:center;
+    padding:32px 36px 48px; border-radius:22px; overflow:hidden; background:var(--bg-elevated);
+    border:1px solid var(--border); margin-bottom:36px; box-shadow:var(--shadow-sm);}
+  .hero::before{content:''; position:absolute; top:-110px; right:-110px; width:320px; height:320px;
+    background:radial-gradient(circle,var(--grad-a) 0%, transparent 70%); opacity:.18; filter:blur(10px);}
+  .hero > *{position:relative; z-index:1;}
+
+  .chat-mock{ background:var(--bg-card); border:1px solid var(--border); border-radius:18px; padding:18px;
+    box-shadow:var(--shadow-md); max-width:290px; margin:0 auto;}
+  .chat-head{display:flex; align-items:center; gap:9px; padding-bottom:12px; border-bottom:1px solid var(--border); margin-bottom:12px;}
+  .chat-avatar{width:30px; height:30px; border-radius:50%; background:linear-gradient(135deg,var(--grad-a),var(--cyan));
+    display:flex; align-items:center; justify-content:center; color:#fff; font-size:13px;}
+  .chat-name{font-size:12.5px; font-weight:600;}
+  .chat-status{font-size:10px; color:var(--accent-strong); font-family:'IBM Plex Mono',monospace;}
+  .bubble{ background:var(--accent-soft); border-radius:14px 14px 14px 4px; padding:9px 13px; font-size:12px;
+    max-width:85%; margin-bottom:8px; color:var(--text);}
+  .bubble.user{background:var(--bg-elevated); border-radius:14px 14px 4px 14px; margin-left:auto; border:1px solid var(--border);}
+  .typing-dots span{display:inline-block; width:5px; height:5px; border-radius:50%; background:var(--text-faint);
+    margin-right:3px; animation:blink 1.2s infinite;}
+  .typing-dots span:nth-child(2){animation-delay:.2s;} .typing-dots span:nth-child(3){animation-delay:.4s;}
+  @keyframes blink{0%,80%,100%{opacity:.3;} 40%{opacity:1;}}
+
+  .btn{ font-family:'Inter',sans-serif; font-weight:600; font-size:13.5px; padding:11px 22px; border-radius:28px;
+    border:none; cursor:pointer; display:inline-flex; align-items:center; gap:7px;
+    transition:transform .12s, box-shadow .15s, opacity .12s;}
+  .btn:active{transform:scale(.97);}
+  .btn-primary{background:linear-gradient(120deg,var(--grad-a),var(--grad-b)); color:#fff; box-shadow:0 8px 20px -8px rgba(31,157,92,.55);}
+  .btn-primary:hover{box-shadow:0 10px 24px -8px rgba(31,157,92,.7); transform:translateY(-1px);}
+  .btn-ghost{background:var(--bg-elevated); color:var(--text); border:1px solid var(--border-strong);}
+  .btn-ghost:hover{background:var(--bg); border-color:var(--accent);}
+  .btn-small{padding:8px 15px; font-size:12px; border-radius:22px;}
+  .btn-disabled{background:var(--bg-elevated); color:var(--text-faint); border:1px solid var(--border); cursor:not-allowed;
+    padding:8px 15px; font-size:12px; border-radius:22px;}
+  .btn-wa{background:var(--wa-green); color:#fff; box-shadow:0 8px 20px -8px rgba(37,211,102,.55);}
+
+  .stats-row{display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin:32px 0;}
+  .stat-box{background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg); padding:20px; text-align:center; box-shadow:var(--shadow-sm);}
+  .stat-num{font-family:'Fraunces',serif; font-size:30px; font-weight:600; color:var(--accent-strong);}
+  .stat-label{font-size:11.5px; color:var(--text-faint); font-family:'IBM Plex Mono',monospace; margin-top:4px; text-transform:uppercase; letter-spacing:.05em;}
+
+  .steps{display:flex; flex-direction:column; gap:0; margin-top:6px;}
+  .step{display:flex; gap:14px; padding:14px 0; border-top:1px solid var(--border);}
+  .step:last-child{border-bottom:1px solid var(--border);}
+  .step-num{font-family:'IBM Plex Mono',monospace; color:var(--accent-strong); font-size:12.5px; width:26px; flex-shrink:0; padding-top:2px;}
+  .step-body h4{font-size:14px; font-weight:600; margin-bottom:3px;}
+  .step-body p{font-size:13px; color:var(--text-dim); line-height:1.5;}
+
+  .preview-row{margin-top:44px;}
+  .section-label{display:flex; align-items:center; justify-content:space-between; margin-bottom:18px;}
+  .section-label h3{font-family:'Fraunces',serif; font-size:19px; font-weight:600;}
+  .link-out{font-size:12px; color:var(--text-dim); text-decoration:none; font-family:'IBM Plex Mono',monospace; cursor:pointer;}
+  .link-out:hover{color:var(--accent-strong);}
+  .filter-row{display:flex; gap:8px; flex-wrap:wrap; margin:22px 0 6px;}
+  .filter-pill{font-family:'Inter',sans-serif; font-size:12px; font-weight:500; padding:7px 15px; border-radius:20px;
+    border:1px solid var(--border-strong); background:var(--bg-card); color:var(--text-dim); cursor:pointer; transition:all .15s;}
+  .filter-pill:hover{border-color:var(--accent);}
+  .filter-pill.active{background:var(--accent); color:#fff; border-color:var(--accent);}
+
+  .card-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:16px;}
+  .bot-card{background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg); padding:20px;
+    display:flex; flex-direction:column; gap:10px; transition:border-color .15s, transform .18s, box-shadow .18s;
+    box-shadow:var(--shadow-sm); position:relative;}
+  .bot-card:hover{border-color:var(--border-strong); transform:translateY(-4px); box-shadow:var(--shadow-md);}
+  .bot-card.coming-soon{opacity:.65;}
+  .bot-card.coming-soon:hover{transform:none; box-shadow:var(--shadow-sm);}
+  .soon-badge{position:absolute; top:14px; right:14px; font-size:9.5px; font-family:'IBM Plex Mono',monospace;
+    background:var(--violet-soft); color:var(--violet); padding:3px 8px; border-radius:20px; font-weight:600;}
+  .bot-tag{align-self:flex-start; font-family:'IBM Plex Mono',monospace; font-size:9.5px; letter-spacing:.08em;
+    text-transform:uppercase; padding:3px 9px; border-radius:20px; font-weight:500;}
+  .tag-utility{background:var(--accent-soft); color:var(--accent-strong);}
+  .tag-dev{background:var(--cyan-soft); color:var(--cyan);}
+  .tag-ai{background:var(--violet-soft); color:var(--violet);}
+  .tag-fun{background:var(--pink-soft); color:var(--pink);}
+  .bot-icon{width:40px; height:40px; border-radius:12px; display:flex; align-items:center; justify-content:center;
+    font-size:18px; background:var(--bg-elevated); border:1px solid var(--border);}
+  .bot-card h4{font-family:'Fraunces',serif; font-size:17px; font-weight:600;}
+  .bot-card p.desc{font-size:12px; color:var(--text-dim); line-height:1.5; flex-grow:1;}
+  .feature-list{list-style:none; display:flex; flex-direction:column; gap:5px; margin:2px 0;}
+  .feature-list li{font-size:11.5px; color:var(--text-dim); display:flex; gap:7px; align-items:flex-start;}
+  .feature-list li::before{content:'✓'; color:var(--accent-strong); font-weight:700; flex-shrink:0;}
+  .bot-meta-row{display:flex; align-items:center; justify-content:space-between; font-size:11.5px;}
+  .price-badge{font-family:'IBM Plex Mono',monospace; font-size:10px; padding:3px 8px; border-radius:20px; font-weight:500;}
+  .price-free{background:var(--accent-soft); color:var(--accent-strong);}
+  .dev-credit{font-size:10.5px; color:var(--text-faint); font-family:'IBM Plex Mono',monospace;}
+
+  .dash-grid{display:flex; flex-direction:column; gap:12px; margin-top:28px;}
+  .dash-card{background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg); padding:18px 20px;
+    display:flex; align-items:center; gap:16px; box-shadow:var(--shadow-sm); transition:box-shadow .15s;}
+  .dash-card:hover{box-shadow:var(--shadow-md);}
+  .dash-icon{width:42px; height:42px; border-radius:12px; display:flex; align-items:center; justify-content:center;
+    font-size:18px; flex-shrink:0; background:var(--accent-soft); color:var(--accent-strong);}
+  .dash-info{flex-grow:1;}
+  .dash-info h4{font-size:14px; font-weight:600; display:flex; align-items:center; gap:7px;}
+  .dash-info .meta{font-size:11px; color:var(--text-faint); margin-top:2px; font-family:'IBM Plex Mono',monospace;}
+  .dash-stats{display:flex; gap:18px; font-size:11px; color:var(--text-dim);}
+  .dash-stats b{color:var(--text); font-weight:700; display:block; font-size:14px;}
+  .dash-actions{display:flex; gap:7px;}
+  .account-box{margin-top:36px; padding:22px; border:1px solid var(--border); border-radius:var(--radius-lg);
+    background:var(--bg-card); display:grid; grid-template-columns:1fr 1fr; gap:22px; box-shadow:var(--shadow-sm);}
+  .account-box h4{font-family:'Fraunces',serif; font-size:16px; margin-bottom:4px; grid-column:1/-1;}
+  .field-label{font-size:10.5px; color:var(--text-faint); text-transform:uppercase; letter-spacing:.08em; margin-bottom:4px; font-family:'IBM Plex Mono',monospace;}
+  .field-value{font-size:13.5px; color:var(--text); font-weight:500;}
+
+  .status-grid{display:flex; flex-direction:column; gap:12px; margin-top:28px;}
+  .status-card{background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg); padding:18px 20px;
+    display:flex; align-items:center; gap:16px; box-shadow:var(--shadow-sm);}
+  .status-pulse{width:10px; height:10px; border-radius:50%; background:var(--accent); box-shadow:0 0 8px var(--accent); flex-shrink:0;
+    animation:statuspulse 2s infinite;}
+  @keyframes statuspulse{0%,100%{opacity:1;} 50%{opacity:.4;}}
+  .status-pulse.down{background:var(--text-faint); box-shadow:none; animation:none;}
+  .status-info{flex-grow:1;}
+  .status-info h4{font-size:14px; font-weight:600;}
+  .status-info .meta{font-size:11px; color:var(--text-faint); font-family:'IBM Plex Mono',monospace; margin-top:2px;}
+  .status-uptime{font-family:'IBM Plex Mono',monospace; font-size:13px; color:var(--accent-strong); font-weight:600;}
+  .status-uptime-label{font-size:10px; color:var(--text-faint); text-align:right;}
+
+  .faq-list{margin-top:28px; display:flex; flex-direction:column; gap:10px;}
+  .faq-item{background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-md); overflow:hidden;}
+  .faq-q{padding:16px 18px; display:flex; align-items:center; justify-content:space-between; cursor:pointer; font-size:13.5px; font-weight:600;}
+  .faq-q .chevron{transition:transform .2s; color:var(--text-faint); font-size:12px;}
+  .faq-item.open .faq-q .chevron{transform:rotate(180deg);}
+  .faq-a{max-height:0; overflow:hidden; transition:max-height .25s ease; font-size:12.5px; color:var(--text-dim); line-height:1.6;}
+  .faq-item.open .faq-a{max-height:200px;}
+  .faq-a-inner{padding:0 18px 16px;}
+
+  .playground{background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg); padding:22px;
+    box-shadow:var(--shadow-sm); margin-top:28px;}
+  .playground-input-row{display:flex; gap:10px; margin-bottom:14px;}
+  .playground-input-row input{flex-grow:1; padding:11px 14px; border-radius:var(--radius-sm); border:1px solid var(--border-strong);
+    background:var(--bg-elevated); color:var(--text); font-size:13px; font-family:'IBM Plex Mono',monospace;}
+  .playground-input-row input:focus{outline:none; border-color:var(--accent);}
+  .playground-output{background:var(--bg-elevated); border-radius:var(--radius-sm); padding:14px; font-family:'IBM Plex Mono',monospace;
+    font-size:12.5px; color:var(--text-dim); min-height:50px; white-space:pre-wrap; line-height:1.6;}
+  .playground-hint{font-size:11px; color:var(--text-faint); margin-top:10px;}
+
+  .about-block{margin-top:28px; max-width:640px;}
+  .about-block p{font-size:14px; color:var(--text-dim); line-height:1.75; margin-bottom:16px;}
+  .community-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-top:28px;}
+  .community-card{background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg); padding:22px;
+    text-align:center; box-shadow:var(--shadow-sm);}
+  .community-icon{width:46px; height:46px; border-radius:14px; margin:0 auto 12px; display:flex; align-items:center; justify-content:center; font-size:20px;}
+  .community-card h4{font-size:14.5px; font-weight:600; margin-bottom:6px;}
+  .community-card p{font-size:12px; color:var(--text-dim); margin-bottom:14px;}
+
+  .changelog-list{margin-top:28px; display:flex; flex-direction:column; gap:0;}
+  .changelog-item{display:flex; gap:18px; padding:18px 0; border-top:1px solid var(--border);}
+  .changelog-item:last-child{border-bottom:1px solid var(--border);}
+  .changelog-date{font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--text-faint); width:90px; flex-shrink:0; padding-top:2px;}
+  .changelog-badge{display:inline-block; font-size:9.5px; font-family:'IBM Plex Mono',monospace; padding:2px 8px; border-radius:20px; margin-bottom:6px; font-weight:600;}
+  .badge-new{background:var(--accent-soft); color:var(--accent-strong);}
+  .badge-fix{background:var(--amber-soft); color:var(--amber);}
+  .changelog-item h4{font-size:14px; font-weight:600; margin-bottom:4px;}
+  .changelog-item p{font-size:12.5px; color:var(--text-dim); line-height:1.5;}
+
+  .request-layout{display:grid; grid-template-columns:1fr .8fr; gap:28px; margin-top:32px; align-items:start;}
+  .request-form{background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg); padding:26px;
+    box-shadow:var(--shadow-sm); display:flex; flex-direction:column; gap:16px;}
+  .form-row{display:flex; flex-direction:column; gap:6px;}
+  .form-row label{font-size:12px; font-weight:600; color:var(--text-dim);}
+  .form-row .hint{font-size:11px; color:var(--text-faint); font-weight:400;}
+  .form-row input, .form-row select, .form-row textarea{padding:11px 13px; border-radius:var(--radius-sm); border:1px solid var(--border-strong);
+    background:var(--bg-elevated); color:var(--text); font-size:13px; font-family:'Inter',sans-serif;}
+  .form-row textarea{resize:vertical; min-height:90px; line-height:1.5;}
+  .form-row input:focus, .form-row select:focus, .form-row textarea:focus{outline:none; border-color:var(--accent);}
+  .request-side{display:flex; flex-direction:column; gap:12px;}
+  .side-card{background:var(--bg-card); border:1px solid var(--border); border-radius:var(--radius-lg); padding:18px; box-shadow:var(--shadow-sm);}
+  .side-card h5{font-family:'Fraunces',serif; font-size:14.5px; margin-bottom:9px;}
+  .side-card ul{list-style:none; display:flex; flex-direction:column; gap:7px;}
+  .side-card ul li{font-size:12px; color:var(--text-dim); display:flex; gap:7px;}
+  .side-card ul li::before{content:'→'; color:var(--accent-strong); flex-shrink:0;}
+
+  .legal-content{margin-top:24px; max-width:680px;}
+  .legal-content h3{font-family:'Fraunces',serif; font-size:16px; margin:22px 0 8px;}
+  .legal-content p, .legal-content li{font-size:13px; color:var(--text-dim); line-height:1.7;}
+  .legal-content ul{padding-left:20px; margin-bottom:10px;}
+
+  .modal-overlay{display:none; position:fixed; inset:0; background:var(--overlay); backdrop-filter:blur(4px);
+    align-items:center; justify-content:center; z-index:50;}
+  .modal-overlay.active{display:flex;}
+  .modal{background:var(--bg-card); border:1px solid var(--border-strong); border-radius:20px; padding:30px; width:400px;
+    text-align:center; box-shadow:var(--shadow-md);}
+  .modal-close{float:right; background:none; border:none; color:var(--text-faint); cursor:pointer; font-size:17px;}
+  .modal h3{font-family:'Fraunces',serif; font-size:19px; margin-bottom:5px;}
+  .modal p.sub{font-size:12.5px; color:var(--text-dim); margin-bottom:18px;}
+  .modal input{width:100%; padding:12px 14px; border-radius:var(--radius-sm); border:1px solid var(--border-strong);
+    background:var(--bg-elevated); color:var(--text); font-size:13.5px; margin-bottom:14px; font-family:'Inter',sans-serif;}
+  .modal input:focus{outline:none; border-color:var(--accent);}
+  .pair-method-tabs{display:flex; gap:6px; background:var(--bg-elevated); border-radius:24px; padding:4px; margin-bottom:18px;}
+  .pair-method-tab{flex:1; padding:8px; border-radius:20px; border:none; background:none; cursor:pointer; font-size:12px;
+    font-weight:600; color:var(--text-dim); font-family:'Inter',sans-serif; transition:all .15s;}
+  .pair-method-tab.active{background:var(--accent); color:#fff;}
+  .pairing-code{font-family:'IBM Plex Mono',monospace; font-size:28px; letter-spacing:.12em; color:var(--accent-strong);
+    background:var(--accent-soft); border-radius:var(--radius-md); padding:15px; margin-bottom:14px;}
+  .qr-box{width:200px; height:200px; margin:0 auto 14px; background:var(--bg-elevated); border:1px solid var(--border-strong);
+    border-radius:var(--radius-md); display:flex; align-items:center; justify-content:center; font-size:11px; color:var(--text-faint);
+    font-family:'IBM Plex Mono',monospace; text-align:center; padding:10px;}
+  .waiting-text{font-size:12px; color:var(--text-dim); font-family:'IBM Plex Mono',monospace; margin-bottom:18px;}
+  .waiting-text .dots::after{content:''; animation:dots 1.4s steps(4,end) infinite;}
+  @keyframes dots{0%,20%{content:'';} 40%{content:'.';} 60%{content:'..';} 80%,100%{content:'...';}}
+  .connected-check{width:50px; height:50px; border-radius:50%; background:var(--accent-soft); color:var(--accent-strong);
+    display:flex; align-items:center; justify-content:center; font-size:22px; margin:0 auto 14px;}
+
+  footer{border-top:1px solid var(--border); padding:20px 0 24px; margin-top:auto; display:flex; flex-direction:column; gap:14px;}
+  .footer-top{display:flex; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; gap:20px;}
+  .footer-links{display:flex; gap:32px; flex-wrap:wrap;}
+  .footer-col h5{font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--text-faint); font-family:'IBM Plex Mono',monospace; margin-bottom:10px;}
+  .footer-col a{display:block; font-size:12.5px; color:var(--text-dim); text-decoration:none; margin-bottom:7px; cursor:pointer;}
+  .footer-col a:hover{color:var(--accent-strong);}
+  .footer-bottom{display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; padding-top:14px; border-top:1px solid var(--border);}
+  .footer-motto{font-family:'Fraunces',serif; font-style:italic; font-size:12.5px; color:var(--text-dim);}
+  .footer-credit{font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:var(--text-faint);}
+  .footer-social{display:flex; gap:10px;}
+  .footer-social a{width:32px; height:32px; border-radius:9px; background:var(--bg-elevated); border:1px solid var(--border);
+    display:flex; align-items:center; justify-content:center; text-decoration:none; color:var(--text-dim); font-size:14px;}
+
+  @media (max-width:900px){
+    body{grid-template-columns:1fr;}
+    aside{position:relative; height:auto; flex-direction:row; align-items:center; padding:14px 18px; overflow-x:auto; gap:16px;}
+    aside > *:not(.brand-row):not(nav){display:none;}
+    nav.primary-nav{flex-direction:row;}
+    .nav-btn.active::before{display:none;}
+    main{padding:28px 18px;}
+    .hero{grid-template-columns:1fr; padding:24px;}
+    .card-grid, .stats-row, .community-grid{grid-template-columns:1fr;}
+    .account-box, .request-layout{grid-template-columns:1fr;}
+    .footer-top{flex-direction:column;}
+  }
+</style>
+</head>
+<body>
+
+<aside>
+  <div class="brand-row">
+    <div class="brand">
+      <div class="brand-icon">✦</div>
+      <div class="brand-text"><div class="brand-mark">Wild Lirt</div><div class="brand-sub">Studio</div></div>
+    </div>
+    <div class="theme-toggle" id="themeToggle"><div class="knob" id="themeKnob">☀</div></div>
+  </div>
+
+  <div class="stat-strip">1 bot live · 5 coming soon</div>
+
+  <a class="wa-follow" href="https://whatsapp.com/channel/0029Vb7TBh3Ae5ViTphVEt0s" target="_blank" rel="noopener">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38a9.9 9.9 0 0 0 4.74 1.21h.01c5.46 0 9.91-4.45 9.91-9.91C21.96 6.45 17.5 2 12.04 2m0 18.15h-.01a8.2 8.2 0 0 1-4.19-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.22 8.22 0 0 1-1.26-4.38c0-4.54 3.7-8.24 8.25-8.24 2.2 0 4.27.86 5.83 2.42a8.18 8.18 0 0 1 2.41 5.83c0 4.55-3.7 8.23-8.24 8.23"/></svg>
+    Follow us for updates
+  </a>
+
+  <nav class="primary-nav">
+    <button class="nav-btn active" data-page="home"><span class="nav-icon">⌂</span>Home</button>
+    <button class="nav-btn" data-page="bots"><span class="nav-icon">◈</span>Bots<span class="nav-badge">6</span></button>
+    <button class="nav-btn" data-page="dashboard"><span class="nav-icon">▤</span>Dashboard</button>
+    <button class="nav-btn" data-page="status"><span class="nav-icon">◉</span>Status</button>
+    <button class="nav-btn" data-page="commands"><span class="nav-icon">⌘</span>Commands</button>
+    <button class="nav-btn" data-page="changelog"><span class="nav-icon">↻</span>Changelog</button>
+    <button class="nav-btn" data-page="faq"><span class="nav-icon">?</span>FAQ</button>
+    <button class="nav-btn" data-page="about"><span class="nav-icon">i</span>About</button>
+    <button class="nav-btn" data-page="community"><span class="nav-icon">◎</span>Community</button>
+    <button class="nav-btn" data-page="request"><span class="nav-icon">✎</span>Request a Bot</button>
+  </nav>
+
+  <div>
+    <div class="sidebar-section-label">My Bots</div>
+    <div class="mybots-list" id="sidebarMyBots"><div class="mybot-empty">No bots paired yet</div></div>
+  </div>
+
+  <div class="sidebar-bottom">
+    <button class="nav-btn" data-page="terms">Terms & Privacy</button>
+    <button class="nav-btn">⚙ Settings</button>
+    <button class="nav-btn">↪ Log out</button>
+  </div>
+</aside>
+
+<main>
+<div class="page-wrap">
+
+  <section class="page active" id="page-home">
+    <div class="hero">
+      <div>
+        <div class="eyebrow">Wild Lirt Studio</div>
+        <h1 class="page-title">Bots that live in <span class="grad">your</span> WhatsApp.</h1>
+        <p class="page-desc">Pick a bot, link your number, and it starts answering — no app to install, no new chat window to remember.</p>
+        <div style="margin-top:20px; display:flex; gap:10px; flex-wrap:wrap;">
+          <button class="btn btn-primary" onclick="goTo('bots')">Explore bots →</button>
+          <a class="btn btn-wa" href="https://whatsapp.com/channel/0029Vb7TBh3Ae5ViTphVEt0s" target="_blank" rel="noopener">Follow our channel</a>
+        </div>
+      </div>
+      <div class="chat-mock">
+        <div class="chat-head">
+          <div class="chat-avatar">🤖</div>
+          <div><div class="chat-name">Necta</div><div class="chat-status">● online</div></div>
+        </div>
+        <div class="bubble user">.ai explain recursion</div>
+        <div class="bubble" id="heroBubble"><span class="typing-dots"><span></span><span></span><span></span></span></div>
+      </div>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-box"><div class="stat-num" id="statPairs">0</div><div class="stat-label">Numbers paired</div></div>
+      <div class="stat-box"><div class="stat-num" id="statMsgs">0</div><div class="stat-label">Messages handled</div></div>
+      <div class="stat-box"><div class="stat-num">1</div><div class="stat-label">Bot live now</div></div>
+    </div>
+
+    <div class="steps">
+      <div class="step"><div class="step-num">01</div><div class="step-body"><h4>Pick a bot</h4><p>Browse the catalog and choose the one that fits.</p></div></div>
+      <div class="step"><div class="step-num">02</div><div class="step-body"><h4>Enter your number</h4><p>Choose a pairing code or scan a QR — whichever's faster for you.</p></div></div>
+      <div class="step"><div class="step-num">03</div><div class="step-body"><h4>Confirm on WhatsApp</h4><p>Link the device and the bot goes live on your chat instantly.</p></div></div>
+    </div>
+
+    <div class="preview-row">
+      <div class="section-label"><h3>Try a command</h3></div>
+      <div class="playground">
+        <div class="playground-input-row">
+          <input type="text" id="playgroundInput" placeholder="Type a command, e.g. .8ball will it rain" onkeydown="if(event.key==='Enter') runPlayground()">
+          <button class="btn btn-primary btn-small" onclick="runPlayground()">Run</button>
+        </div>
+        <div class="playground-output" id="playgroundOutput">Type a command above and hit Run — this is a live preview of how Necta replies, no pairing needed.</div>
+        <div class="playground-hint">Try: .ping · .8ball · .joke · .menu</div>
+      </div>
+    </div>
+
+    <div class="preview-row">
+      <div class="section-label"><h3>Meet the bots</h3><span class="link-out" onclick="goTo('bots')">See all →</span></div>
+      <div class="card-grid" id="homePreviewCards"></div>
+    </div>
+  </section>
+
+  <section class="page" id="page-bots">
+    <div class="eyebrow">Catalog · 1 live, 5 coming soon</div>
+    <h1 class="page-title">One bot ready. <span class="grad">Five on the way.</span></h1>
+    <p class="page-desc">Necta connects to your own WhatsApp number in under a minute — choose a pairing code or QR scan, whichever's easier.</p>
+    <div class="card-grid" id="botsFullCards" style="margin-top:32px;"></div>
+  </section>
+
+  <section class="page" id="page-dashboard">
+    <div class="eyebrow">Your control room</div>
+    <h1 class="page-title">Dashboard</h1>
+    <p class="page-desc">Everything paired to your number, live status, and quick controls.</p>
+    <div class="dash-grid" id="dashboardList"></div>
+    <div class="account-box">
+      <h4>Account</h4>
+      <div><div class="field-label">Phone number</div><div class="field-value">+263 •• ••• 4471</div></div>
+      <div><div class="field-label">Notifications</div><div class="field-value">Pairing alerts on</div></div>
+    </div>
+  </section>
+
+  <section class="page" id="page-status">
+    <div class="eyebrow">Live status</div>
+    <h1 class="page-title">Is it <span class="grad">working right now?</span></h1>
+    <p class="page-desc">Real uptime for every bot, updated continuously — no more guessing whether something's down.</p>
+    <div class="status-grid">
+      <div class="status-card">
+        <div class="status-pulse"></div>
+        <div class="status-info"><h4>Necta</h4><div class="meta">operational · last checked just now</div></div>
+        <div><div class="status-uptime">99.4%</div><div class="status-uptime-label">30-day uptime</div></div>
+      </div>
+      <div class="status-card">
+        <div class="status-pulse down"></div>
+        <div class="status-info"><h4>ProCoder X</h4><div class="meta">not yet launched</div></div>
+        <div><div class="status-uptime">—</div><div class="status-uptime-label">30-day uptime</div></div>
+      </div>
+      <div class="status-card">
+        <div class="status-pulse down"></div>
+        <div class="status-info"><h4>Wild Lirt</h4><div class="meta">not yet launched</div></div>
+        <div><div class="status-uptime">—</div><div class="status-uptime-label">30-day uptime</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="page" id="page-commands">
+    <div class="eyebrow">Command explorer</div>
+    <h1 class="page-title">Every command, <span class="grad">searchable.</span></h1>
+    <p class="page-desc">The real, live command set for Necta — type to filter.</p>
+    <div class="playground" style="margin-top:24px;">
+      <input type="text" id="cmdSearch" placeholder="Search commands…" oninput="filterCommands()"
+        style="width:100%; padding:11px 14px; border-radius:8px; border:1px solid var(--border-strong); background:var(--bg-elevated); color:var(--text); font-size:13px; font-family:'IBM Plex Mono',monospace; margin-bottom:16px;">
+      <div id="cmdList" class="feature-list" style="gap:10px;"></div>
+    </div>
+  </section>
+
+  <section class="page" id="page-changelog">
+    <div class="eyebrow">What's new</div>
+    <h1 class="page-title">Changelog</h1>
+    <p class="page-desc">Every real update, as it ships.</p>
+    <div class="changelog-list">
+      <div class="changelog-item">
+        <div class="changelog-date">Aug 2026</div>
+        <div><span class="changelog-badge badge-new">New</span><h4>Dual pairing methods</h4><p>Pairing code and QR scan now both available for Necta — pick whichever WhatsApp offers you faster.</p></div>
+      </div>
+      <div class="changelog-item">
+        <div class="changelog-date">Aug 2026</div>
+        <div><span class="changelog-badge badge-fix">Fix</span><h4>Stability improvements</h4><p>Rebuilt Necta's hosting setup for more reliable uptime.</p></div>
+      </div>
+      <div class="changelog-item">
+        <div class="changelog-date">Jul 2026</div>
+        <div><span class="changelog-badge badge-new">New</span><h4>Necta launched</h4><p>AI chat, downloads, group tools, and more — all inside WhatsApp.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="page" id="page-faq">
+    <div class="eyebrow">Questions</div>
+    <h1 class="page-title">FAQ</h1>
+    <p class="page-desc">The things people usually ask before pairing.</p>
+    <div class="faq-list" id="faqList"></div>
+  </section>
+
+  <section class="page" id="page-about">
+    <div class="eyebrow">Our story</div>
+    <h1 class="page-title">Why <span class="grad">Wild Lirt Studio</span> exists.</h1>
+    <div class="about-block">
+      <p>We wanted bots that didn't ask you to install anything new — just link them to WhatsApp, the app you already use every day, and get real utility back in return.</p>
+      <p>Built by Nullforge and friends, Wild Lirt Studio is a small, growing catalog of bots — each built for a different job, all sharing the same simple pairing flow.</p>
+    </div>
+  </section>
+
+  <section class="page" id="page-community">
+    <div class="eyebrow">Get involved</div>
+    <h1 class="page-title">Join the <span class="grad">community.</span></h1>
+    <p class="page-desc">Updates, support, and a place to request what you want built next.</p>
+    <div class="community-grid">
+      <div class="community-card">
+        <div class="community-icon" style="background:rgba(37,211,102,.12); color:var(--wa-green);">💬</div>
+        <h4>WhatsApp Channel</h4>
+        <p>Follow for launch announcements and updates.</p>
+        <a class="btn btn-wa btn-small" href="https://whatsapp.com/channel/0029Vb7TBh3Ae5ViTphVEt0s" target="_blank" rel="noopener">Follow</a>
+      </div>
+      <div class="community-card">
+        <div class="community-icon" style="background:var(--violet-soft); color:var(--violet);">◎</div>
+        <h4>Discord</h4>
+        <p>Coming soon.</p>
+        <button class="btn-disabled">Not yet available</button>
+      </div>
+      <div class="community-card">
+        <div class="community-icon" style="background:var(--cyan-soft); color:var(--cyan);">✎</div>
+        <h4>Request a Bot</h4>
+        <p>Tell us what you want built next.</p>
+        <button class="btn btn-ghost btn-small" onclick="goTo('request')">Request</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="page" id="page-request">
+    <div class="eyebrow">Custom builds</div>
+    <h1 class="page-title">Request a bot <span class="grad">under your name.</span></h1>
+    <p class="page-desc">Tell us what you want it to do and we'll scope, build, and list it — credited to you.</p>
+    <div class="request-layout">
+      <div class="request-form">
+        <div class="form-row"><label>Your name</label><input type="text" placeholder="How your bot will be credited"></div>
+        <div class="form-row"><label>WhatsApp number <span class="hint">(so we can reach you)</span></label><input type="tel" placeholder="+263 77 123 4567"></div>
+        <div class="form-row"><label>Bot name idea</label><input type="text" placeholder="e.g. Ledger, Scout, Quill…"></div>
+        <div class="form-row"><label>Explain how you'd want it to work</label><textarea placeholder="What should it do when someone messages it?"></textarea></div>
+        <button class="btn btn-primary" style="justify-content:center;">Submit request</button>
+      </div>
+      <div class="request-side">
+        <div class="side-card"><h5>What makes a good request</h5><ul><li>A clear job the bot does</li><li>Example messages you'd send it</li><li>Any bot you've used that's close to what you want</li></ul></div>
+        <div class="side-card"><h5>What happens next</h5><ul><li>We review and scope feasibility</li><li>You're credited on the listing</li><li>We message you once it's live</li></ul></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="page" id="page-terms">
+    <div class="eyebrow">Legal</div>
+    <h1 class="page-title">Terms & Privacy</h1>
+    <div class="legal-content">
+      <h3>Using our bots</h3>
+      <p>By pairing a bot, you're linking it as a companion device to your WhatsApp account. You can unpair at any time from your Dashboard or directly in WhatsApp's Linked Devices settings.</p>
+      <h3>What we store</h3>
+      <p>Session credentials needed to keep your bot connected, and basic usage stats to keep things running reliably. We don't sell your data.</p>
+      <h3>Your responsibility</h3>
+      <p>Don't use any bot for spam, harassment, or anything that violates WhatsApp's own terms of service — accounts doing so risk being restricted by WhatsApp itself, independent of us.</p>
+    </div>
+  </section>
+
+</div>
+
+<footer>
+  <div class="footer-top">
+    <div class="footer-links">
+      <div class="footer-col">
+        <h5>Product</h5>
+        <a onclick="goTo('bots')">Bots</a><a onclick="goTo('status')">Status</a><a onclick="goTo('commands')">Commands</a>
+      </div>
+      <div class="footer-col">
+        <h5>Company</h5>
+        <a onclick="goTo('about')">About</a><a onclick="goTo('changelog')">Changelog</a><a onclick="goTo('faq')">FAQ</a>
+      </div>
+      <div class="footer-col">
+        <h5>Community</h5>
+        <a onclick="goTo('community')">Community</a><a onclick="goTo('request')">Request a Bot</a><a onclick="goTo('terms')">Terms & Privacy</a>
+      </div>
+    </div>
+    <div class="footer-social">
+      <a href="https://whatsapp.com/channel/0029Vb7TBh3Ae5ViTphVEt0s" target="_blank" rel="noopener" title="WhatsApp Channel">💬</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div class="footer-motto">"bots that live where u chat"</div>
+    <div class="footer-credit">Built by Wild Lirt Studio team</div>
+  </div>
+</footer>
+</main>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div id="modalStepInput">
+      <h3 id="modalBotName">Pair a bot</h3>
+      <p class="sub">Choose how you'd like to connect.</p>
+      <div class="pair-method-tabs">
+        <button class="pair-method-tab active" id="tabCode" onclick="setPairMethod('code')">Pairing Code</button>
+        <button class="pair-method-tab" id="tabQr" onclick="setPairMethod('qr')">QR Code</button>
+      </div>
+      <div id="codeInputFields">
+        <input type="tel" id="phoneInput" placeholder="+263 77 123 4567">
+      </div>
+      <div id="qrInputFields" style="display:none;">
+        <p class="sub" style="margin-bottom:16px;">No number needed — just scan with WhatsApp.</p>
+      </div>
+      <button class="btn btn-primary" style="width:100%; justify-content:center;" onclick="generateCode()">Continue</button>
+    </div>
+
+    <div id="modalStepCode" style="display:none;">
+      <h3 id="stepCodeTitle">Enter this code on WhatsApp</h3>
+      <p class="sub" id="stepCodeSub">Linked Devices → Link with phone number → enter code</p>
+      <div class="pairing-code" id="pairingCodeText" style="display:none;">Generating code…</div>
+      <div class="qr-box" id="qrBox" style="display:none;">Generating QR…</div>
+      <div class="waiting-text" id="waitingText">Waiting for confirmation<span class="dots"></span></div>
+    </div>
+
+    <div id="modalStepDone" style="display:none;">
+      <div class="connected-check">✓</div>
+      <h3>Connected</h3>
+      <p class="sub" id="connectedSub">Your bot is now live on WhatsApp.</p>
+      <button class="btn btn-primary" style="width:100%; justify-content:center;" onclick="closeModal()">Done</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const bots = [
+    { id:'necta', icon:'🤖', name:'Necta', category:'ai', tag:'AI', tagClass:'tag-ai', dev:'Nullforge and friends', comingSoon:false,
+      tagline:'One WhatsApp number, everything you need.',
+      desc:'Chat with AI, download YouTube videos, manage your groups, and get instant answers — all without leaving WhatsApp.',
+      features:['AI Chat & Voice','Media Downloads','Group Management','Fun & Games','Tools & Search'], closing:'289+ commands – all inside WhatsApp.' },
+    { id:'procoder-x', icon:'⌘', name:'ProCoder X', category:'dev', tag:'Developer', tagClass:'tag-dev', dev:'Nullforge', comingSoon:true,
+      desc:'A powerful WhatsApp assistant built by Nullforge — relaunching soon.', features:[] },
+    { id:'wild-lirt', icon:'✦', name:'Wild Lirt', category:'utility', tag:'Utility', tagClass:'tag-utility', dev:'Nullforge', comingSoon:true,
+      desc:'General-purpose group bot with admin tools and games — relaunching soon.', features:[] },
+    { id:'phantom-x', icon:'◐', name:'Phantom X', category:'ai', tag:'AI', tagClass:'tag-ai', dev:'Nullforge', comingSoon:true, desc:'Coming soon.', features:[] },
+    { id:'tapri-queen', icon:'♛', name:'Tapri Queen', category:'fun', tag:'Fun', tagClass:'tag-fun', dev:'Nullforge', comingSoon:true, desc:'Coming soon.', features:[] },
+    { id:'quantum-xmd', icon:'◇', name:'Quantum Xmd', category:'utility', tag:'Utility', tagClass:'tag-utility', dev:'Nullforge', comingSoon:true, desc:'Coming soon.', features:[] }
+  ];
+  let pairedBots = [];
+  let pairMethod = 'code';
+
+  function cardHTML(bot, full){
+    if(bot.comingSoon){
+      return `<div class="bot-card coming-soon"><div class="soon-badge">Coming soon</div><span class="bot-tag ${bot.tagClass}">${bot.tag}</span>
+        <div class="bot-icon">${bot.icon}</div><h4>${bot.name}</h4><p class="desc">${bot.desc}</p>
+        <div class="dev-credit">by ${bot.dev}</div><button class="btn-disabled" disabled>Not yet available</button></div>`;
+    }
+    return `<div class="bot-card"><span class="bot-tag ${bot.tagClass}">${bot.tag}</span><div class="bot-icon">${bot.icon}</div>
+      <h4>${bot.name}</h4><p class="desc">${bot.desc}</p>
+      ${full && bot.features.length ? `<ul class="feature-list">${bot.features.map(f=>`<li>${f}</li>`).join('')}</ul>` : ''}
+      ${full && bot.closing ? `<div style="font-size:11px; color:var(--text-faint); font-family:'IBM Plex Mono',monospace; border-top:1px solid var(--border); padding-top:8px;">${bot.closing}</div>` : ''}
+      <div class="bot-meta-row"><span class="dev-credit">by ${bot.dev}</span><span class="price-badge price-free">Free</span></div>
+      <button class="btn btn-primary btn-small" onclick="openModal('${bot.id}')">Pair now</button></div>`;
+  }
+  document.getElementById('homePreviewCards').innerHTML = bots.filter(b=>!b.comingSoon).map(b=>cardHTML(b,false)).join('');
+  document.getElementById('botsFullCards').innerHTML = bots.map(b=>cardHTML(b,true)).join('');
+
+  function renderSidebarAndDashboard(){
+    const sideEl = document.getElementById('sidebarMyBots'), dashEl = document.getElementById('dashboardList');
+    if(pairedBots.length === 0){
+      sideEl.innerHTML = `<div class="mybot-empty">No bots paired yet</div>`;
+      dashEl.innerHTML = `<div class="mybot-empty" style="padding:20px 0;">Nothing here yet — pair a bot to see it show up.</div>`;
+      return;
+    }
+    sideEl.innerHTML = pairedBots.map(b=>`<div class="mybot-row"><div class="mybot-name"><span class="status-dot online"></span>${b.name}</div></div>`).join('');
+    dashEl.innerHTML = pairedBots.map(b=>`<div class="dash-card"><div class="dash-icon">${b.icon}</div>
+      <div class="dash-info"><h4>${b.name} <span class="status-dot online"></span></h4><div class="meta">paired just now · session active</div></div>
+      <div class="dash-stats"><div><b>0</b>msgs</div><div><b>online</b>status</div></div>
+      <div class="dash-actions"><button class="btn btn-ghost btn-small">Pause</button><button class="btn btn-ghost btn-small">Unpair</button></div></div>`).join('');
+  }
+  renderSidebarAndDashboard();
+
+  function goTo(page){
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    document.getElementById('page-'+page).classList.add('active');
+    document.querySelectorAll('.nav-btn[data-page]').forEach(b=>b.classList.remove('active'));
+    const btn = document.querySelector(`.nav-btn[data-page="${page}"]`);
+    if(btn) btn.classList.add('active');
+    window.scrollTo(0,0);
+  }
+  document.querySelectorAll('.nav-btn[data-page]').forEach(btn=>btn.addEventListener('click', ()=>goTo(btn.dataset.page)));
+
+  const themeToggle = document.getElementById('themeToggle'), themeKnob = document.getElementById('themeKnob');
+  themeToggle.addEventListener('click', ()=>{
+    const html = document.documentElement, isLight = html.getAttribute('data-theme') === 'light';
+    html.setAttribute('data-theme', isLight ? 'dark' : 'light');
+    themeKnob.textContent = isLight ? '☾' : '☀';
+  });
+
+  let currentBot = null;
+  function openModal(botId){
+    currentBot = bots.find(b=>b.id===botId);
+    if(currentBot.comingSoon) return;
+    document.getElementById('modalBotName').textContent = `Pair ${currentBot.name}`;
+    document.getElementById('modalStepInput').style.display='block';
+    document.getElementById('modalStepCode').style.display='none';
+    document.getElementById('modalStepDone').style.display='none';
+    document.getElementById('phoneInput').value='';
+    setPairMethod('code');
+    document.getElementById('modalOverlay').classList.add('active');
+  }
+  function closeModal(){ document.getElementById('modalOverlay').classList.remove('active'); }
+  function setPairMethod(method){
+    pairMethod = method;
+    document.getElementById('tabCode').classList.toggle('active', method==='code');
+    document.getElementById('tabQr').classList.toggle('active', method==='qr');
+    document.getElementById('codeInputFields').style.display = method==='code' ? 'block' : 'none';
+    document.getElementById('qrInputFields').style.display = method==='qr' ? 'block' : 'none';
+  }
+  function randomCode(){
+    const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let a='', b='';
+    for(let i=0;i<4;i++) a+=chars[Math.floor(Math.random()*chars.length)];
+    for(let i=0;i<4;i++) b+=chars[Math.floor(Math.random()*chars.length)];
+    return a+'-'+b;
+  }
+  async function generateCode(){
+    if(pairMethod==='code' && !document.getElementById('phoneInput').value.trim()){
+      alert('Enter a WhatsApp number first.'); return;
+    }
+    document.getElementById('modalStepInput').style.display='none';
+    document.getElementById('modalStepCode').style.display='block';
+    document.getElementById('pairingCodeText').style.display = pairMethod==='code' ? 'block' : 'none';
+    document.getElementById('qrBox').style.display = pairMethod==='qr' ? 'flex' : 'none';
+    document.getElementById('stepCodeTitle').textContent = pairMethod==='code' ? 'Enter this code on WhatsApp' : 'Scan this QR on WhatsApp';
+    document.getElementById('stepCodeSub').textContent = pairMethod==='code' ? 'Linked Devices → Link with phone number → enter code' : 'Linked Devices → Link a Device → scan';
+    document.getElementById('waitingText').textContent = 'Waiting for confirmation';
+
+    // Only Necta is actually live right now - other bots stay in demo mode
+    const isLive = currentBot.id === 'necta';
+
+    if(pairMethod === 'code'){
+      document.getElementById('pairingCodeText').textContent = 'Generating code…';
+      if(!isLive){
+        document.getElementById('pairingCodeText').textContent = randomCode();
+        setTimeout(()=> markConnected(), 3200);
+        return;
+      }
+      try{
+        const phoneNumber = document.getElementById('phoneInput').value.trim();
+        const res = await fetch('/pair', {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({ phoneNumber })
+        });
+        const data = await res.json();
+        if(!res.ok) throw new Error(data.error || 'Pairing failed');
+        document.getElementById('pairingCodeText').textContent = data.code || data.status || '—';
+        pollStatus();
+      }catch(err){
+        document.getElementById('pairingCodeText').textContent = '—';
+        document.getElementById('waitingText').textContent = `Error: ${err.message}`;
+      }
+    } else {
+      // QR method
+      document.getElementById('qrBox').innerHTML = 'Generating QR…';
+      if(!isLive){
+        document.getElementById('qrBox').textContent = '[ QR preview — real scan image renders here once live ]';
+        setTimeout(()=> markConnected(), 3200);
+        return;
+      }
+      const img = new Image();
+      img.style.width = '100%';
+      img.style.height = '100%';
+      img.style.objectFit = 'contain';
+      img.onload = () => { document.getElementById('qrBox').innerHTML = ''; document.getElementById('qrBox').appendChild(img); pollStatus(); };
+      img.onerror = () => { document.getElementById('waitingText').textContent = 'Error: could not generate QR'; };
+      img.src = '/pair-qr?_=' + Date.now();
+    }
+  }
+
+  function pollStatus(){
+    const interval = setInterval(async ()=>{
+      try{
+        const res = await fetch('/status');
+        const data = await res.json();
+        if(data.status === 'connected'){
+          clearInterval(interval);
+          markConnected();
+        }
+      }catch(err){ /* keep polling silently */ }
+    }, 3000);
+    setTimeout(()=> clearInterval(interval), 120000);
+  }
+
+  function markConnected(){
+    document.getElementById('modalStepCode').style.display='none';
+    document.getElementById('modalStepDone').style.display='block';
+    document.getElementById('connectedSub').textContent = `${currentBot.name} is now live on WhatsApp.`;
+    if(!pairedBots.find(b=>b.id===currentBot.id)){ pairedBots.push(currentBot); renderSidebarAndDashboard(); }
+  }
+
+  function animateCount(id, target){
+    let n=0; const step = Math.max(1, Math.floor(target/40));
+    const el = document.getElementById(id);
+    const t = setInterval(()=>{ n+=step; if(n>=target){ n=target; clearInterval(t);} el.textContent = n.toLocaleString(); }, 30);
+  }
+  animateCount('statPairs', 214); animateCount('statMsgs', 8760);
+
+  setTimeout(()=>{
+    document.getElementById('heroBubble').innerHTML = 'Recursion is when a function calls itself to solve a smaller version of the same problem, until it hits a base case.';
+  }, 1800);
+
+  const playgroundResponses = {
+    '.ping': 'Pong! 42ms',
+    '.8ball': '🎱 Signs point to yes.',
+    '.joke': 'Why do programmers prefer dark mode? Because light attracts bugs.',
+    '.menu': '*NECTA MENU*\n\nAI Chat & Voice\nMedia Downloads\nGroup Management\nFun & Games\nTools\nSearch\n\n289+ commands total.'
+  };
+  function runPlayground(){
+    const input = document.getElementById('playgroundInput').value.trim().toLowerCase();
+    const output = document.getElementById('playgroundOutput');
+    const key = Object.keys(playgroundResponses).find(k => input.startsWith(k));
+    output.textContent = key ? playgroundResponses[key] : (input ? "Command not recognized in this preview — try .ping, .8ball, .joke, or .menu" : 'Type a command above and hit Run.');
+  }
+
+  const faqs = [
+    { q:"Will pairing a bot get my WhatsApp number banned?", a:"Pairing uses WhatsApp's official Linked Devices feature. Risk is low for normal use, but heavy spam-like behavior on any linked device can trigger WhatsApp's own restrictions." },
+    { q:'Can I unpair at any time?', a:'Yes — from your Dashboard here, or directly in WhatsApp under Linked Devices, remove the device at any time.' },
+    { q:'Do I need to keep my phone on for the bot to work?', a:'No — once linked, the bot runs on our servers, not your phone. Your phone can be off and the bot still responds.' },
+    { q:'Is it free?', a:'Yes, every live bot in the catalog is free to pair.' }
+  ];
+  document.getElementById('faqList').innerHTML = faqs.map((f,i)=>`
+    <div class="faq-item" id="faq${i}">
+      <div class="faq-q" onclick="toggleFaq(${i})"><span>${f.q}</span><span class="chevron">▾</span></div>
+      <div class="faq-a"><div class="faq-a-inner">${f.a}</div></div>
+    </div>`).join('');
+  function toggleFaq(i){ document.getElementById('faq'+i).classList.toggle('open'); }
+
+  const commandList = [
+    'ai / gpt / ask — AI chat', 'tts — text to speech', 'yt / ytmp3 / ytmp4 — YouTube downloads',
+    'tiktok / ig / fb — media downloads', 'antilink — group link protection', 'welcome / goodbye — group greetings',
+    'promote / demote / kick / tagall — group admin', 'meme / joke / truth / dare — fun', 'tictactoe — games',
+    'qr / ocr / translate — tools', 'google / wiki / news / weather / crypto — search'
+  ];
+  function renderCommands(filter=''){
+    const list = commandList.filter(c => c.toLowerCase().includes(filter.toLowerCase()));
+    document.getElementById('cmdList').innerHTML = list.map(c=>`<li>${c}</li>`).join('') || '<li>No matches</li>';
+  }
+  renderCommands();
+  function filterCommands(){ renderCommands(document.getElementById('cmdSearch').value); }
+</script>
+</body>
+</html>
